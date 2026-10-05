@@ -73,6 +73,7 @@
     lb.onclick = (e) => { if (e.target === lb || e.target.closest("button")) closeLb(); };
     document.addEventListener("click", (e) => {
       const pv = e.target.closest("[data-pv]"); if (pv) { switchPic(pv); return; }
+      const sk = e.target.closest("[data-seek]"); if (sk) { const v = $("[data-film]"); if (v) { v.currentTime = +sk.dataset.seek; v.play(); } return; }
       const t = e.target.closest("[data-lb]"); if (!t || !t.dataset.lb) return;
       $("img", lb).src = t.dataset.lb; $("p", lb).textContent = t.dataset.cap || ""; lb.classList.add("is-open");
     });
@@ -114,7 +115,7 @@
     const heroSVG = CAD.viewSVG((B, V) => DRAW.views.wallBed(B, V, {}), 16, 10.5, 60, "dark");
     return `
     <header class="hero grain">
-      <div class="hero-bg">${R.media.film ? `<video src="${esc(R.media.film)}" autoplay muted loop playsinline></video>` : heroSVG}</div>
+      <div class="hero-bg">${heroSVG}</div>
       <span class="hero-flank l">Particulars of the room</span><span class="hero-flank r">Every decision on one page</span>
       <div class="hero-in">
         <div class="hero-mark">${MARK}</div>
@@ -152,9 +153,9 @@
       <div class="rv" data-sheet="plan"></div>
     </div></section>
     <section class="section"><div class="wrap">
-      <div class="head"><span class="eyebrow rv">The film</span><h2 class="rv">Walk the rooms.</h2></div>
-      <div class="film rv">${R.media.film ? `<video src="${esc(R.media.film)}" controls playsinline></video>` : `<div class="ph">${MARK}<b>No film yet.</b><em>Seven years, what's a few more weeks.</em><span>Render in Blender · drop the MP4 into assets/media · name it in data.js</span></div>`}</div>
-      <div class="chapters">${["From the door", "The bed wall", "The TV wall", "The study", "The dressing", "The bathroom"].map((t, i) => `<button class="chip" type="button" disabled>${pad(i + 1)} · ${t}</button>`).join("")}</div>
+      <div class="head"><span class="eyebrow rv">The film</span><h2 class="rv">Walk the rooms.</h2><p class="lede rv">75 seconds through the whole suite, rendered in Blender from these drawings: every light at 3000K, only the ones you would really switch on.</p></div>
+      <div class="film rv">${R.media.film ? `<video src="${esc(R.media.film)}" ${R.media.poster ? `poster="${esc(R.media.poster)}"` : ""} controls playsinline preload="metadata" data-film></video>` : `<div class="ph">${MARK}<b>No film yet.</b><em>Seven years, what's a few more weeks.</em><span>Render in Blender · drop the MP4 into assets/media · name it in data.js</span></div>`}</div>
+      <div class="chapters">${(R.media.chapters || []).map(([t, s], i) => `<button class="chip" type="button" data-seek="${s}"${R.media.film ? "" : " disabled"}>${pad(i + 1)} · ${esc(t)}</button>`).join("")}</div>
     </div></section>
     <section class="section"><div class="wrap">
       <div class="head"><span class="eyebrow rv">The pieces</span><h2 class="rv">Drawn to be made, not just imagined.</h2></div>

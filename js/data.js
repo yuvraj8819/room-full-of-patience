@@ -428,5 +428,7 @@ window.ROOM = {
   ],
 
   // Blender: drop files into assets/media and name them here
-  media: { film: null, renders: [], model: null },
+  media: { film: "assets/media/room-tour.mp4", poster: "assets/refs/film-poster.jpg", renders: [], model: null,
+    // the tour, in seconds: where each room starts in the film
+    chapters: [["From the door", 0], ["The bed wall", 11], ["The painting", 22], ["The TV wall", 28], ["The study", 36], ["The ceiling", 42], ["The dressing", 50], ["The bathroom", 60]] },
 };

@@ -11,7 +11,7 @@ window.ROOM3D = (function () {
         views: [["From the door", -38, 58], ["Bed wall", 180, 62], ["TV wall", 0, 62], ["Desk wall", 90, 62], ["Dressing side", -90, 62], ["From above", -20, 12]],
         floor: (B, V) => v.plan(B, V, { floor: true, labels: false }),
         walls: [
-          { name: "TV wall", L: 15.75, fn: (B, V) => v.wallTV(B, V, { niche: "A" }), mx: W / 2, my: 0, rot: 0 },
+          { name: "TV wall", L: 15.75, fn: (B, V) => v.wallTV(B, V, {}), mx: W / 2, my: 0, rot: 0 },
           { name: "Bed wall", L: 16, fn: (B, V) => v.wallBed(B, V, {}), mx: W / 2, my: D, rot: 180 },
           { name: "Desk wall", L: 13, fn: (B, V) => v.wallDesk(B, V, {}), mx: 0, my: D / 2, rot: -90 },
           { name: "Dressing side", L: 13, fn: (B, V) => v.wallDressing(B, V, {}), mx: W, my: D / 2, rot: 90 },

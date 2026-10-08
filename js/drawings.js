@@ -33,8 +33,8 @@ window.DRAW = (function () {
     B.ly = "furn";
     if (o.furn === false) { B.ly = null; }
     else {
-    B.stadium(V, 4.792, 0.1, 11.208, 1.0, "sh-fill", "bou");
-    [3.292, 11.208].forEach((a) => B.rect(V, a, 0.1, a + 1.5, 1.433, "sh-hid"));
+    B.rect(V, 4.792, 0.2, 11.208, 1.0, "sh-fill", "bou", 0.05);
+    [3.292, 11.208].forEach((a) => B.rect(V, a, 0.2, a + 1.5, 1.563, "sh-line", "ven"));
     B.rect(V, 4.792, 1.0, 11.208, 7.708, "sh-fill", "bou", 0.208); B.rect(V, 5, 1.0, 11, 7.5, "sh-line", null, 0.1);
     B.rect(V, 5.7, 1.2, 7.8, 2.2, "sh-soft", null, 0.2); B.rect(V, 8.2, 1.2, 10.3, 2.2, "sh-soft", null, 0.2);
     B.text(V, 8, 4.7, "BED", "t-room"); B.text(V, 8, 4.2, "confirmed", "t-sm");
@@ -76,31 +76,42 @@ window.DRAW = (function () {
 
   // ───────── the four walls, from inside the room ─────────
   // bed wall: e from the dressing side (0) to the desk side (16)
+  const BVH = 7.667; // bed-wall veneer: 7'8", the top of the doorway's marble frame
+  // nightstand front, a = left edge (owner, 10 Oct): a 2" Calacatta Viola slab underneath on a recessed black plinth;
+  // the drawer box and its top all Dark Diva, two soft-edged handle-less drawers. No marble on top.
+  function nightstand(B, V, a) {
+    B.rect(V, a + 0.1, 0, a + 1.4, 0.2, "sh-dark");
+    B.rect(V, a, 0.2, a + 1.5, 0.367, "sh-line", "marb", 0.012);
+    B.rect(V, a, 0.367, a + 1.5, 1.667, "sh-line", "ven", 0.02);
+    B.rect(V, a + 0.008, 0.38, a + 1.492, 0.995, "sh-line", "ven", 0.05); B.rect(V, a + 0.008, 1.035, a + 1.492, 1.655, "sh-line", "ven", 0.05);
+  }
   function wallBed(B, V, o) {
     o = o || {};
     B.rect(V, 0, 0, 16, 10.5, "sh-none", "lime");
-    const ven = [[0, 0], [0, 8], ...arc(12.5, 6, 2, H, 0, 12), [14.5, 0]];
+    const VH = BVH; // veneer height: level with the top of the doorway's marble frame (10 Oct)
+    const ven = [[0, 0], [0, VH], ...arc(12.5, VH - 2, 2, H, 0, 12), [14.5, 0]];
     B.poly(V, ven, "sh-line", true, "ven");
-    for (let e = 0.167; e < 3.5; e += 0.167) B.line(V, e, 0, e, 8, "sh-thin");
-    for (let e = 12.667; e < 14.5; e += 0.167) B.line(V, e, 0, e, Math.min(8, 6 + Math.sqrt(Math.max(0, 4 - (e - 12.5) ** 2))), "sh-thin");
-    [3.5, 5, 6.5, 8, 9.5, 11, 12.5].forEach((e) => B.line(V, e, 0, e, 8, "sh-line"));
-    B.poly(V, [[0, 8.08], ...arc(12.42, 6, 2.08, H, 0, 12), [14.58, 0]], "sh-led");
+    for (let e = 0.167; e < 3.5; e += 0.167) B.line(V, e, 0, e, VH, "sh-thin");
+    for (let e = 12.667; e < 14.5; e += 0.167) B.line(V, e, 0, e, Math.min(VH, VH - 2 + Math.sqrt(Math.max(0, 4 - (e - 12.5) ** 2))), "sh-thin");
+    [3.5, 5, 6.5, 8, 9.5, 11, 12.5].forEach((e) => B.line(V, e, 0, e, VH, "sh-line"));
+    // the panel floats 1" off the wall; COB hidden behind its top edge and rounded corner throws a halo on the white wall
+    B.poly(V, [[0, VH + 0.08], ...arc(12.5, VH - 2, 2.08, H, 0, 12), [14.58, 0.3]], "sh-cove"); B.paint(V, 0, VH, 14.5, Math.min(VH + 1.6, 10.2), "warm", 0.45);
     B.line(V, 0, 10.3, 16, 10.3, "sh-cove");
     if (o.bare) return; // the 3D room stands the furniture up as solids instead
     B.shadow(V, 4.9, 0.9, 11.1, 2.85, 0.4); B.shadow(V, 4.6, 0, 11.4, 0.5, 0.5, true); [3.292, 11.208].forEach((a) => B.shadow(V, a + 0.05, 0, a + 1.6, 1.75, 0.32));
     [4.042, 11.958].forEach((e) => { B.line(V, e, 10.5, e, 4.63, "sh-thin"); B.paint(V, e - 1.2, 2.2, e + 1.2, 5.0, "warm", 0.6); B.rect(V, e - 0.165, 3.67, e + 0.165, 4.57, "sh-light", null, 0.04); B.rect(V, e - 0.06, 4.57, e + 0.06, 4.63, "sh-dark"); });
     // headboard, bed, nightstands (envelopes)
-    B.stadium(V, 4.792, 1.15, 11.208, 2.75, "sh-line", "bou"); B.line(V, 5.05, 2.3, 10.95, 2.3, "sh-thin");
+    B.rect(V, 4.792, 1.15, 11.208, 3.25, "sh-line", "bou", 0.06);
     B.rect(V, 5.5, 0, 10.5, 0.15, "sh-line", "cut");
     B.rect(V, 5, 1.0, 11, 1.6, "sh-fill", null, 0.08);
     B.rect(V, 5.7, 1.6, 7.8, 2.3, "sh-fill", null, 0.25); B.rect(V, 8.2, 1.6, 10.3, 2.3, "sh-fill", null, 0.25);
     B.rect(V, 4.792, 0.15, 11.208, 1.15, "sh-line", "bou", 0.208);
-    [3.292, 11.208].forEach((a) => { B.rect(V, a, 0, a + 1.5, 1.667, "sh-soft"); B.line(V, a, 0, a + 1.5, 1.667, "sh-hid"); B.line(V, a, 1.667, a + 1.5, 0, "sh-hid"); });
+    [3.292, 11.208].forEach((a) => nightstand(B, V, a));
     B.ambient(V, 0, 0, 16, 10.5);
     if (o.labels) {
       B.text(V, 0.75, 4.4, "CURVE R1'0\" TO MARBLE BORDER", "t-sm", "middle", -90);
-      B.text(V, 4.25, 1.9, "NIGHTSTAND · OPEN", "t-sm"); B.text(V, 11.75, 1.9, "NIGHTSTAND · OPEN", "t-sm");
-      B.key(V, 1.0, 9.3, "L1"); B.key(V, 2.6, 6.6, "V2"); B.key(V, 7.2, 6.1, "V1"); B.key(V, 8, 2.55, "F1"); B.key(V, 13.4, 4.37, "P1"); B.key(V, 14.3, 9.3, "LED");
+      B.text(V, 4.04, 1.9, "NIGHTSTAND", "t-sm"); B.text(V, 11.96, 1.9, "NIGHTSTAND", "t-sm");
+      B.key(V, 1.0, 9.3, "L1"); B.key(V, 2.6, 6.6, "V2"); B.key(V, 7.2, 6.1, "V1"); B.key(V, 8, 2.55, "F1"); B.key(V, 13.4, 4.37, "P1"); B.key(V, 14.3, 9.0, "LED");
     }
   }
   // TV wall: x from the desk wall (0) to the dressing-side wall (15.75)
@@ -108,7 +119,7 @@ window.DRAW = (function () {
   // Selected: a Viola band, 4 ft tall, curving forward into the shelf on R1 ft and running square to the window.
   // 55" Sony Bravia 8 (about 48.4 × 27.9 in) on the bed centreline; floating console 7 ft 0 in, centred.
   // o.niche: "A" (contrast strip with a lit niche) | "B" (twin lit niches) | undefined (band only)
-  const TVW = 48.4 / 12, TVH = 27.9 / 12, TVZ = 2.84, BAND = [2.667, 2.167, 13.333, 6.167], CON = [4.75, 0.667, 11.25, 1.667], CAP = 0.7;
+  const TVW = 48.4 / 12, TVH = 27.9 / 12, TVZ = 2.84, BAND = [2.667, 2.167, 13.333, 6.167], CON = [4.5, 0.45, 11.5, 1.72], CAP = 0.75; // 10 Oct: 7 ft floating Dark Diva console, curved ends (R9"), fridge behind the middle front
   function wallTV(B, V, o) {
     o = o || {};
     B.rect(V, 0, 0, 15.75, 10.5, "sh-none", "lime");
@@ -118,32 +129,33 @@ window.DRAW = (function () {
     B.rect(V, BAND[0], BAND[1], BAND[2], BAND[3], "sh-line", "marb");
     for (let x = 2.72; x < 3.667; x += 0.12 + (x - 2.667) * 0.12) B.line(V, x, BAND[1], x, BAND[3], "sh-thin");
     B.line(V, 3.667, BAND[1], 3.667, BAND[3], "sh-hid");
-    B.line(V, BAND[0], BAND[1] - 0.04, BAND[2], BAND[1] - 0.04, "sh-led"); B.line(V, BAND[0], BAND[3] + 0.04, BAND[2], BAND[3] + 0.04, "sh-led");
-    if (o.niche === "A") {
-      B.rect(V, 11.25, 1.85, 12.083, 7.0, "sh-line", "dgm");
-      B.rect(V, 11.333, 3.4, 12.0, 5.0, "sh-soft"); B.line(V, 11.37, 4.94, 11.96, 4.94, "sh-led");
-    } else if (o.niche === "B") {
-      [[3.95, 4.783], [11.217, 12.05]].forEach(([a, b]) => { B.rect(V, a - 0.06, 2.6, b + 0.06, 5.75, "sh-line", "dgm"); B.rect(V, a, 2.66, b, 5.69, "sh-soft"); B.line(V, a + 0.04, 5.63, b - 0.04, 5.63, "sh-led"); [3.7, 4.7].forEach((z) => B.line(V, a, z, b, z, "sh-line")); });
-    }
+    // halo: the panel stands 1" off the wall, COB hidden behind its edges (no visible strips)
+    B.rect(V, BAND[0] + 0.1, BAND[1] - 0.08, BAND[2] + 0.08, BAND[3] + 0.08, "sh-cove"); B.paint(V, BAND[0], BAND[3], BAND[2], BAND[3] + 1.0, "warm", 0.35);
     B.shadow(V, 8 - TVW / 2 - 0.05, TVZ - 0.15, 8 + TVW / 2 + 0.1, TVZ + TVH - 0.05, 0.5);
     B.rect(V, 8 - TVW / 2, TVZ, 8 + TVW / 2, TVZ + TVH, "sh-dark", null, 0.02); B.paint(V, 8 - TVW / 2, TVZ, 8 + TVW / 2, TVZ + TVH, "glass");
-    B.shadow(V, CON[0] + 0.05, CON[1] - 0.3, CON[2] + 0.05, CON[3] - 0.1, 0.5); B.shadow(V, CON[0] + 0.5, 0, CON[2] - 0.5, 0.3, 0.3, true);
-    // floating console after the reference: flat rectangle front, three flat drawers, ends rounded back to the wall (seen as curved caps)
-    B.rect(V, CON[0], CON[1], CON[2], CON[3], "sh-line", "ven");
-    B.rect(V, CON[0], CON[3] - 0.125, CON[2], CON[3], "sh-line", "ven");
-    [[CON[0], 1], [CON[2], -1]].forEach(([x0, dir]) => { B.line(V, x0 + dir * CAP, CON[1], x0 + dir * CAP, CON[3] - 0.125, "sh-line"); [0.06, 0.15, 0.27, 0.42].forEach((t) => B.line(V, x0 + dir * t, CON[1], x0 + dir * t, CON[3] - 0.125, "sh-thin")); });
-    const dw = (CON[2] - CON[0] - 2 * CAP) / 3; [1, 2].forEach((k) => B.line(V, CON[0] + CAP + k * dw, CON[1], CON[0] + CAP + k * dw, CON[3] - 0.125, "sh-line"));
-    B.line(V, CON[0] + 0.3, CON[1] - 0.05, CON[2] - 0.3, CON[1] - 0.05, "sh-led");
+    // skirting runs on behind the floating console
+    B.rect(V, 2.667, 0, 15.75, 0.333, "sh-line", "flr");
+    // the console: floating Dark Diva, ends curving back to the wall (R9"), thin top, handle-less fronts; the wider middle front hides a fridge
+    B.shadow(V, CON[0] + 0.4, 0.05, CON[2] - 0.4, 0.4, 0.35, true);
+    B.rect(V, CON[0], CON[1], CON[2], 1.62, "sh-line", "ven", 0.03);
+    B.line(V, CON[0] + CAP, CON[1] + 0.04, CON[0] + CAP, 1.6, "sh-hid"); B.line(V, CON[2] - CAP, CON[1] + 0.04, CON[2] - CAP, 1.6, "sh-hid");
+    B.rect(V, CON[0], 1.63, CON[2], CON[3], "sh-line", "ven", 0.02);
+    [[CON[0] + CAP, 6.958], [6.958, 9.042], [9.042, CON[2] - CAP]].forEach(([a, b]) => { B.rect(V, a + 0.006, CON[1] + 0.05, b - 0.006, 1.56, "sh-line", "ven"); B.line(V, a + 0.006, 1.575, b - 0.006, 1.575, "sh-dark"); });
+    B.rect(V, 7.028, CON[1] + 0.07, 8.972, 1.52, "sh-hid");
+    // skirting, 4" floor marble; curtains at the window: taupe linen stacked either side, sheer between
+    B.rect(V, 13.25, 0.05, 13.95, 9.96, "sh-line", "tau"); B.rect(V, 15.3, 0.05, 15.75, 9.96, "sh-line", "tau");
+    for (let x = 13.95; x < 15.3; x += 0.21) B.line(V, x, 0.05, x, 9.96, "sh-thin");
+    B.line(V, 13.2, 9.98, 15.75, 9.98, "sh-thick");
     B.line(V, 0, 10.3, 15.75, 10.3, "sh-cove");
     B.ambient(V, 0, 0, 15.75, 10.5);
     if (o.labels) {
-      B.text(V, 8, 4.0, "55\" BRAVIA 8", "t-sm"); B.text(V, 1.33, 6, "SHELF", "t-sm"); B.text(V, 14.33, 7.4, "WINDOW", "t-sm"); B.text(V, 3.17, 6.55, "CURVE R1'0\"", "t-sm");
+      B.text(V, 8, 4.0, "55\" BRAVIA 8", "t-sm"); B.text(V, 1.33, 6, "SHELF", "t-sm"); B.text(V, 14.6, 8.6, "CURTAINS", "t-sm"); B.text(V, 3.17, 6.55, "CURVE R1'0\"", "t-sm"); B.text(V, 8, 1.0, "FRIDGE BEHIND", "t-sm"); B.text(V, 8, 2.45, "CALACATTA VIOLA PANEL", "t-sm");
       if (o.niche === "A") B.text(V, 11.67, 7.3, "A · CONTRAST STRIP", "t-sm");
       if (o.niche === "B") B.text(V, 8, 6.55, "B · TWIN NICHES", "t-sm");
     }
     if (o.dims) {
-      B.dimH(V, BAND[0], BAND[2], -0.55, "BAND {10.667}"); B.dimH(V, CON[0], CON[2], -1.15, "CONSOLE {6.5}"); B.dimH(V, 8 - TVW / 2, 8 + TVW / 2, 5.5, "TV {4.033}");
-      B.dimV(V, BAND[1], BAND[3], 13.75 - 0.25, "{4}"); B.dimV(V, 0, BAND[1], 13.75 - 0.25); B.dimV(V, 0, CON[3], 4.25); B.dimV(V, 0, TVZ + TVH / 2, 7.6, "TV ¢ {4}");
+      B.dimH(V, BAND[0], BAND[2], -0.55, "BAND {10.667}"); B.dimH(V, CON[0], CON[2], -1.15, "CONSOLE {7}"); B.dimH(V, 8 - TVW / 2, 8 + TVW / 2, 5.5, "TV {4.033}");
+      B.dimV(V, BAND[1], BAND[3], 13.75 - 0.25, "{4}"); B.dimV(V, 0, BAND[1], 13.75 - 0.25); B.dimV(V, 0, CON[1], 4.15, "{0.458}"); B.dimV(V, 0, CON[3], 3.45); B.dimV(V, 0, TVZ + TVH / 2, 12.35, "TV ¢ {4}");
       if (o.niche === "A") { B.dimH(V, 11.25, 12.083, 7.6, "{0.833}"); B.dimV(V, 3.4, 5.0, 12.4); }
       if (o.niche === "B") { B.dimH(V, 3.95, 4.783, 6.05, "{0.833}"); B.dimV(V, 2.6, 5.75, 3.6); }
     }
@@ -153,20 +165,20 @@ window.DRAW = (function () {
     B.rect(V, 13.333, 13, 15.333, 13.75, "sh-fill"); B.line(V, 13.333, 13.375, 15.333, 13.375, "sh-line");
     B.rect(V, 0, 10.417, 2.667, 13, "sh-line", "ven"); B.text(V, 1.33, 11.7, "SHELF", "t-sm");
     B.poly(V, [[13.333, 13], [3.667, 13], ...arc(3.667, 12, 1, H, Math.PI, 12), [2.667, 11.9], [2.583, 11.9], ...arc(3.667, 12, 1.083, Math.PI, H, 12), [13.333, 12.917]], "sh-line", true, "marb");
-    B.poly(V, [[CON[0], 13], ...arc(CON[0] + CAP, 11.75 + CAP, CAP, Math.PI, 1.5 * Math.PI, 8), ...arc(CON[2] - CAP, 11.75 + CAP, CAP, 1.5 * Math.PI, 2 * Math.PI, 8), [CON[2], 13]], "sh-line", true, "ven");
+    B.poly(V, [[CON[0], 12.95], ...arc(CON[0] + CAP, 11.5 + CAP, CAP, Math.PI, 1.5 * Math.PI, 10), ...arc(CON[2] - CAP, 11.5 + CAP, CAP, 1.5 * Math.PI, 2 * Math.PI, 10), [CON[2], 12.95]], "sh-line", true, "ven"); B.rect(V, 7.028, 11.54, 8.972, 12.75, "sh-hid"); B.text(V, 8, 12.2, "FRIDGE", "t-sm");
     B.rect(V, 8 - TVW / 2, 12.75, 8 + TVW / 2, 12.9, "sh-dark");
     B.rect(V, 4.792, 6.708, 11.208, 7.708, "sh-hid"); B.text(V, 8, 7.1, "FOOT OF BED", "t-sm"); B.line(V, 8, 6.7, 8, 13.6, "sh-hid");
     B.text(V, 3.0, 11.3, "BAND CURVES INTO SHELF", "t-sm", "start");
-    B.dimV(V, 7.708, 11.75, 12.2, "{4.042} CLEAR"); B.dimV(V, 11.75, 13, 12.2); B.dimH(V, 2.667, 3.667, 13.95, "R{1}");
+    B.dimV(V, 7.708, 11.5, 12.2, "{3.792} CLEAR"); B.dimV(V, 11.5, 13, 12.2, "{1.5}"); B.dimH(V, 2.667, 3.667, 13.95, "R{1}");
   }
   function tvSection(B, V) {
     CUTW(B, V, -0.75, 0, 0, 7.5); B.line(V, -0.75, 0, 2.2, 0, "sh-thick");
-    B.rect(V, 0, BAND[1], 0.083, BAND[3], "sh-soft"); B.rect(V, 0.083, BAND[1], 0.167, BAND[3], "sh-line", "marb");
+    B.rect(V, 0.083, BAND[1], 0.183, BAND[3], "sh-line", "marb"); B.circle(V, 0.04, BAND[3] - 0.1, 0.03, "sh-light");
     B.rect(V, 0.25, TVZ, 0.39, TVZ + TVH, "sh-dark"); B.rect(V, 0.167, 3.7, 0.25, 4.3, "sh-line");
-    B.rect(V, 0, CON[1], 1.25, CON[3] - 0.125, "sh-line", "cut"); B.rect(V, 0, CON[3] - 0.125, 1.28, CON[3], "sh-line", "cut");
-    B.line(V, 0.15, CON[1] - 0.05, 1.1, CON[1] - 0.05, "sh-led");
-    B.text(V, 1.1, 5.4, "BAND ON PLY BATTENS", "t-sm", "start"); B.text(V, 1.1, 5.05, "CONDUIT BEHIND TV", "t-sm", "start");
-    B.dimH(V, 0, 1.25, -0.55, "{1.25}"); B.dimV(V, 0, CON[1], 1.75); B.dimV(V, 0, CON[3], 2.15);
+    B.rect(V, 0, CON[1], 1.45, 1.62, "sh-line", "cut", 0.02); B.rect(V, 0, 1.63, 1.47, CON[3], "sh-line", "ven"); B.rect(V, 0.03, 0.55, 1.4, 1.52, "sh-hid"); B.rect(V, 0, 1.1, 0.06, 1.3, "sh-metal");
+    B.text(V, 0.72, 1.0, "FRIDGE", "t-sm"); B.text(V, 2.55, 0.15, "WALL-HUNG ON A STEEL RAIL", "t-sm", "start");
+    B.text(V, 1.1, 5.4, "1\" OFF THE WALL · COB HALO", "t-sm", "start"); B.text(V, 1.1, 5.05, "CONDUIT BEHIND TV", "t-sm", "start");
+    B.dimH(V, 0, 1.5, -0.55, "{1.5}"); B.dimV(V, 0, CON[1], 1.85, "{0.458}"); B.dimV(V, 0, CON[3], 2.25);
   }  // desk wall: d from the bed wall (0) to the TV wall (13)
   function wallDesk(B, V, o) {
     o = o || {};
@@ -203,10 +215,10 @@ window.DRAW = (function () {
   function wallDressing(B, V, o) {
     o = o || {};
     B.rect(V, 0, 0, 13, 10.5, "sh-none", "lime");
-    [0.667, 0.45, 0.22].forEach((s, i) => B.rect(V, 8.833 - s, 0, 11.333 + s, 7 + s, "sh-line", i === 0 ? "dgm" : null));
+    [0.667, 0.45, 0.22].forEach((s, i) => B.rect(V, 8.833 - s, 0, 11.333 + s, 7 + s, "sh-line", i === 0 ? "flr" : null));
     B.paint(V, 8.833, 0, 11.333, 7, "deep"); B.shadow(V, 8.833, 6.4, 11.333, 7, 0.5);
-    B.rect(V, 12, 0, 13, 8, "sh-line", "ven");
-    for (let u = 12.1; u < 13; u += 0.167) B.line(V, u, 0, u, 8, "sh-thin");
+    B.rect(V, 12, 0, 13, BVH, "sh-line", "ven");
+    for (let u = 12.1; u < 13; u += 0.167) B.line(V, u, 0, u, BVH, "sh-thin");
     B.line(V, 0, 10.3, 13, 10.3, "sh-cove");
     painting(B, V, o);
     B.ambient(V, 0, 0, 13, 10.5);
@@ -217,21 +229,21 @@ window.DRAW = (function () {
   function bedSection(B, V) {
     CUTW(B, V, -0.75, 0, 0, 10.85); CUTW(B, V, -0.75, 10.5, 8.8, 10.85); B.line(V, -0.75, 0, 8.8, 0, "sh-thick");
     B.rect(V, 0, 10.05, 1.8, 10.5, "sh-soft"); B.line(V, 0.1, 10.15, 1.7, 10.15, "sh-led");
-    B.rect(V, 0, 0, 0.1, 8, "sh-line", "ven");
-    B.poly(V, [[0.1, 1.15], [0.85, 1.15], [1.0, 1.3], [1.0, 2.3], ...arc(0.55, 2.3, 0.45, 0, Math.PI, 8)], "sh-line", true, "bou");
+    B.rect(V, 0.083, 0, 0.183, BVH, "sh-line", "ven"); B.circle(V, 0.04, BVH - 0.12, 0.035, "sh-light"); B.line(V, 0.01, BVH + 0.1, 0.01, 9.6, "sh-cove"); B.text(V, 0.3, BVH + 0.45, "1\" GAP · COB HALO", "t-sm", "start");
+    B.rect(V, 0.2, 1.15, 1.0, 3.25, "sh-line", "bou", 0.05);
     B.rect(V, 1.0, 0.7, 7.5, 0.85, "sh-line", "cut"); B.rect(V, 1.3, 0, 7.4, 0.15, "sh-line", "cut");
     B.rect(V, 1.02, 0.85, 7.48, 1.6, "sh-fill", null, 0.1); B.rect(V, 7.5, 0.15, 7.708, 1.15, "sh-line", "bou", 0.1); B.rect(V, 1.3, 1.6, 3.3, 2.3, "sh-fill", null, 0.25);
-    B.rect(V, 0.1, 0, 1.433, 1.667, "sh-hid");
+    B.rect(V, 0.2, 0, 1.563, 1.667, "sh-hid"); B.rect(V, 0.2, 0.2, 1.563, 0.367, "sh-line", "marb");
     B.text(V, 4.25, 1.2, "MATTRESS 6' × 6'6\"", "t-sm");
     B.dimH(V, 0, 1.0, -0.55); B.dimH(V, 1.0, 7.708, -0.55); B.dimH(V, 0, 7.708, -1.15, "{7.708} FROM WALL"); B.dimH(V, 7.5, 7.708, 1.9, "ROLL 2½\"");
-    B.dimV(V, 0, 1.15, 8.55); B.dimV(V, 0, 1.6, 9.15); B.dimV(V, 0, 2.75, -1.25); B.dimV(V, 0, 8, -1.9);
+    B.dimV(V, 0, 1.15, 8.55); B.dimV(V, 0, 1.6, 9.15); B.dimV(V, 0, 3.25, -1.25); B.dimV(V, 0, BVH, -1.9);
   }
   function bedPlan(B, V) {
     CUTW(B, V, -0.75, -0.75, 16.75, 0); CUTW(B, V, -0.75, 3, 0, 9.5); CUTW(B, V, 16, 0, 16.75, 1.667); CUTW(B, V, 16, 4.167, 16.75, 9.5);
     B.poly(V, arc(0, 0, 3, H, 0, 12), "sh-hid"); B.line(V, 0, 0, 3, 0, "sh-thick");
     B.rect(V, 1.5, 0, 15, 0.1, "sh-line", "ven");
     B.poly(V, [[15, 0], [16, 0], [16, 1], ...arc(15, 1, 1, 0, -H, 10).slice(1)], "sh-line", true, "ven");
-    B.stadium(V, 4.792, 0.1, 11.208, 1.0, "sh-fill", "bou");
+    B.rect(V, 4.792, 0.2, 11.208, 1.0, "sh-fill", "bou", 0.05);
     [3.292, 11.208].forEach((a) => B.rect(V, a, 0.1, a + 1.5, 1.433, "sh-hid"));
     B.rect(V, 4.792, 1.0, 11.208, 7.708, "sh-fill", "bou", 0.208); B.rect(V, 5, 1.0, 11, 7.5, "sh-line", null, 0.1);
     B.rect(V, 5.7, 1.2, 7.8, 2.2, "sh-soft", null, 0.2); B.rect(V, 8.2, 1.2, 10.3, 2.2, "sh-soft", null, 0.2);
@@ -248,7 +260,7 @@ window.DRAW = (function () {
   function deskFront(B, V, dims) {
     if (dims !== false) B.line(V, 2.6, 0, 11.2, 0, "sh-thick");
     B.rect(V, D0 + PW, ZP, D1 - PW, ZT, "sh-soft"); B.line(V, D0 + PW, ZT - 0.03, D1 - PW, ZT - 0.03, "sh-led");
-    [D0, D1 - PW].forEach((a) => { B.rect(V, a + 0.08, 0, a + PW - 0.08, ZP, "sh-line", "cut"); B.rect(V, a, ZP, a + PW, ZT, "sh-line", "ven", 0.13); DRW.forEach(([z0, z1]) => { B.rect(V, a + 0.06, z0, a + PW - 0.06, z1, "sh-fill", null, 0.04); B.line(V, a + 0.35, z1 - 0.05, a + PW - 0.35, z1 - 0.05, "sh-line"); }); });
+    [D0, D1 - PW].forEach((a) => { B.rect(V, a + 0.08, 0, a + PW - 0.08, ZP, "sh-line", "cut"); B.rect(V, a, ZP, a + PW, ZT, "sh-line", "ven", 0.24); [1.183, 1.849].forEach((z) => B.line(V, a + 0.26, z + 0.006, a + PW - 0.26, z + 0.006, "sh-dark")); });
     B.rect(V, D0 + 0.083, ZT, D1 - 0.083, 2.5, "sh-line", "ven", 0.03);
     if (dims === false) return;
     B.key(V, 4.17, 1.52, "L2"); B.key(V, 3.62, 0.55, "V1"); B.key(V, 6.92, 2.44, "W1"); B.key(V, 6.92, 1.3, "L2");
@@ -257,27 +269,53 @@ window.DRAW = (function () {
   function deskRear(B, V) {
     B.line(V, -0.3, 0, 7.3, 0, "sh-thick");
     B.rect(V, 0, ZP, 7, ZT, "sh-line", "ven", 0.13); B.rect(V, 0.08, 0, 1.42, ZP, "sh-soft"); B.rect(V, 5.58, 0, 6.92, ZP, "sh-soft");
-    B.rect(V, 1.5, ZP + 0.08, 5.5, ZT - 0.08, "sh-soft"); B.line(V, 1.6, ZT - 0.04, 5.4, ZT - 0.04, "sh-led");
-    ribs(B, V, 1.3, ZP + 0.05, ZT - 0.05, 0.28, 1); ribs(B, V, 5.7, ZP + 0.05, ZT - 0.05, 0.28, -1);
+    B.rect(V, 1.5, ZP + 0.04, 5.5, ZT - 0.08, "sh-line", "ven");
+    [[1.63, 0.45], [5.37, 0.45], [1.63, 2.15], [5.37, 2.15]].forEach(([u, z]) => { B.circle(V, u, z, 0.035, "sh-metal"); B.circle(V, u, z + 0.12, 0.03, "sh-light"); });
+    B.text(V, 3.5, 1.3, "REMOVABLE BACK PANEL", "t-sm"); B.text(V, 3.5, 1.05, "magnets + 4 screws", "t-sm");
     B.rect(V, 0.083, ZT, 6.917, 2.5, "sh-line", "ven", 0.03);
     B.dimH(V, 0, 7, -0.55); B.dimH(V, 0, 1.5, -1.1); B.dimH(V, 1.5, 5.5, -1.1); B.dimH(V, 5.5, 7, -1.1);
   }
   function deskEnd(B, V) {
     B.line(V, -0.3, 0, 3.2, 0, "sh-thick"); CUTW(B, V, -0.4, 0, 0, 3.0);
-    B.rect(V, 0.08, 0, 2.587, ZP, "sh-soft"); B.rect(V, 0, ZP, BX, ZT, "sh-line", "ven", 0.13); B.rect(V, 0.12, 0.35, 2.55, 2.29, "sh-line", null, 0.2);
-    ribs(B, V, 0.45, 0.4, 2.25, 0.3, 1);
+    B.rect(V, 0.08, 0, 2.587, ZP, "sh-soft"); B.rect(V, 0, ZP, BX, ZT, "sh-line", "ven", 0.24);
+    const LR = 0.24, LE = BX - LR; // leather: wall edge to where the front curve starts, foot to top
+    B.poly(V, [[LE, ZP], [LR, ZP], ...arc(LR, ZP + LR, LR, -H, -Math.PI, 8), [0, ZT - LR], ...arc(LR, ZT - LR, LR, Math.PI, H, 8), [LE, ZT]], "sh-line", true, "tau");
+    B.text(V, LE / 2, 1.42, "TAUPE LEATHER, FOOT TO TOP", "t-sm"); B.text(V, LE / 2, 1.18, "stops at the front curve", "t-sm"); B.text(V, LE + LR / 2, 2.6, "VENEER CURVE", "t-sm");
     B.rect(V, 0.083, ZT, BX - 0.083, 2.5, "sh-line", "ven", 0.03);
-    B.dimH(V, 0, BX, -0.55); B.dimH(V, 0.083, BX - 0.083, 3.0); B.dimV(V, 0, 2.5, 3.1);
+    B.dimH(V, 0, BX, -0.55); B.dimH(V, 0, BX - 0.24, -1.05, "LEATHER {2.427}"); B.dimV(V, 0, 2.5, 3.1);
   }
   function deskPlan(B, V) {
     CUTW(B, V, -0.4, -0.75, 13.4, 0); B.rect(V, 0, -0.75, 3, 0, "sh-fill");
     B.poly(V, arc(0, 0, 3, 0, H, 12), "sh-hid"); B.line(V, 0, 0, 0, 3, "sh-thick");
     B.rect(V, D0, 0, D1, BX, "sh-fill", null, 0.2); B.rect(V, D0 + 0.083, 0.083, D1 - 0.083, BX - 0.083, "sh-line", "ven", 0.115);
     B.line(V, D0 + PW, 0.1, D0 + PW, BX - 0.1, "sh-hid"); B.line(V, D1 - PW, 0.1, D1 - PW, BX - 0.1, "sh-hid");
-    B.rect(V, 6.15, 0.2, 7.69, 0.36, "sh-metal"); B.rect(V, D1, 0, 13, BX, "sh-line", "ven");
+    B.rect(V, 6.667, 0.167, 7.167, 0.375, "sh-dark", null, 0.03); B.rect(V, 6.69, 0.18, 7.144, 0.362, "sh-thin", null, 0.02); B.rect(V, D1, 0, 13, BX, "sh-line", "ven");
+    B.rect(V, D0 - 0.03, 0, D0, BX - 0.24, "sh-line", "tau"); B.rect(V, D1 - 0.001, 0, D1 + 0.029, BX - 0.24, "sh-line", "tau"); B.text(V, 6.917, 0.6, "CABLE SLOT 6\" × 2½\"", "t-sm");
     B.circle(V, 6.917, 3.7, 0.85, "sh-hid"); B.text(V, 6.917, 3.6, "CHAIR", "t-sm");
     B.rect(V, 5, 5, 11, 5.6, "sh-hid"); B.text(V, 9.6, 5.25, "BED SIDE", "t-sm");
     B.dimH(V, D0, D1, -1.3); B.dimV(V, 0, BX, 2.6); B.dimV(V, BX, 5, 6.3, "{2.333} TO BED");
+  }
+
+  // desk details (08 Oct): cable slot in the top with a magnetic lid; removable back panel (magnets + 4 screws) with a cable opening; taupe leather sides
+  function deskSlotPlan(B, V) { // plan of the back of the top around the slot; desk front at the top, wall at the bottom
+    CUTW(B, V, 4.6, -0.4, 9.2, 0); B.rect(V, 4.6, 0, 9.2, 1.4, "sh-line", "ven");
+    B.rect(V, 6.667, 0.167, 7.167, 0.375, "sh-dark", null, 0.03); B.rect(V, 6.69, 0.18, 7.144, 0.362, "sh-line", "ven", 0.02); B.rect(V, 6.877, 0.33, 6.957, 0.362, "sh-thin");
+    B.text(V, 6.917, 0.85, "MAGNETIC LID, FLUSH, FINGER NOTCH", "t-sm"); B.text(V, 5.3, -0.25, "WALL", "t-sm");
+    B.dimH(V, 6.667, 7.167, 0.6, "6\""); B.dimV(V, 0.167, 0.375, 7.5, "2½\""); B.dimV(V, 0, 0.167, 8.0, "2\"");
+  }
+  function deskSlotSection(B, V) { // section through the top and the slot, large scale
+    B.rect(V, 0, 0, 0.167, 0.125, "sh-line", "cut"); B.rect(V, 0.375, 0, 1.2, 0.125, "sh-line", "cut");
+    B.rect(V, 0.177, 0.085, 0.365, 0.125, "sh-line", "ven"); B.rect(V, 0.2, 0.06, 0.26, 0.085, "sh-metal"); B.rect(V, 0.28, 0.06, 0.34, 0.085, "sh-metal");
+    B.rect(V, 0.167, 0.04, 0.195, 0.06, "sh-dark"); B.rect(V, 0.347, 0.04, 0.375, 0.06, "sh-dark");
+    B.text(V, 0.27, 0.2, "LID ½\" VENEERED", "t-sm"); B.text(V, 0.6, -0.06, "MAGNETS ON STEEL LEDGES", "t-sm", "start"); B.text(V, 0.27, -0.08, "CABLES ↓", "t-sm");
+    B.dimH(V, 0.167, 0.375, 0.3, "2½\""); B.dimV(V, 0, 0.125, 1.3, "1½\" TOP");
+  }
+  function deskBackPanel(B, V) { // the removable back panel seen from the wall side
+    B.line(V, -0.3, 0, 4.3, 0, "sh-thick"); B.rect(V, 0, 0.3, 4.0, 2.3, "sh-line", "ven");
+    [[0.13, 0.45], [3.87, 0.45], [0.13, 2.15], [3.87, 2.15]].forEach(([u, z]) => B.circle(V, u, z, 0.035, "sh-metal"));
+    [[0.13, 1.3], [3.87, 1.3], [2.0, 2.15]].forEach(([u, z]) => B.rect(V, u - 0.06, z - 0.04, u + 0.06, z + 0.04, "sh-dark"));
+    B.text(V, 2.0, 1.4, "REMOVABLE: LIFT OFF THE MAGNETS, 4 SCREWS FOR SAFETY", "t-sm"); B.text(V, 2.0, 0.85, "CABLES COME DOWN THROUGH THE TOP SLOT", "t-sm");
+    B.dimH(V, 0, 4.0, -0.4); B.dimV(V, 0.3, 2.3, 4.3, "{2}");
   }
 
   // dressing: perfume & hair-dryer column on the right wall after entering (the bed-wall side, y = 0), x 16.75 → 19.083.
@@ -338,10 +376,11 @@ window.DRAW = (function () {
     B.rect(V, -0.6, 0, 6.2, WZ.ceil, "sh-none", "lime");
     B.shadow(V, 0, 0, 5.583, WZ.top, 0.3, true);
     wardTop(B, V, 0, 5.583);
-    const w = 5.583 / 3; shutter(B, V, 0, w, "r"); shutter(B, V, w, 2 * w, "l"); shutter(B, V, 2 * w, 5.583, "l");
+    const c9 = 900 / 304.8, c8 = 5.583 - c9; // 900 mm (bath end) + 800 mm, double doors each (09 Oct)
+    shutter(B, V, 0, c9 / 2, "r"); shutter(B, V, c9 / 2, c9, "l"); shutter(B, V, c9, c9 + c8 / 2, "r"); shutter(B, V, c9 + c8 / 2, 5.583, "l");
     B.line(V, -0.6, 0, 6.2, 0, "sh-thick");
     B.ambient(V, -0.6, 0, 6.2, WZ.ceil);
-    if (o.dims) { B.dimH(V, 0, 5.583, -0.5); B.dimH(V, 0, w, -1.0, "{1.861}"); B.dimV(V, 0, WZ.split, 6.6, "{3.5}"); B.dimV(V, 0, WZ.top, 7.2, "{9.75}"); B.dimV(V, WZ.bar[0], WZ.bar[1], 5.95, "BAR {4.75}"); }
+    if (o.dims) { B.dimH(V, 0, 5.583, -0.5); B.dimH(V, 0, c9, -1.0, "900"); B.dimH(V, c9, 5.583, -1.0, "800"); B.dimV(V, 0, WZ.split, 6.6, "{3.5}"); B.dimV(V, 0, WZ.top, 7.2, "{9.75}"); B.dimV(V, WZ.bar[0], WZ.bar[1], 5.95, "BAR {4.75}"); }
   }
   // extension, section looking at the far wall: u from the right-hand wall (0) to the left-hand wall (9); u = 24.25 - x
   function wardExtFar(B, V, o) {
@@ -413,7 +452,7 @@ window.DRAW = (function () {
   function doorRoom(B, V, o) {
     o = o || {};
     B.rect(V, -1.6, 0, 4.1, 9.2, "sh-none", "lime");
-    STEPS.forEach(([s], i) => B.rect(V, -s, 0, 2.5 + s, 7 + s, "sh-line", i === 0 ? "dgm" : null));
+    STEPS.forEach(([s], i) => B.rect(V, -s, 0.42, 2.5 + s, 7 + s, "sh-line", i === 0 ? "flr" : null)); B.rect(V, -0.687, 0, 0, 0.42, "sh-line", "flr"); B.rect(V, 2.5, 0, 3.187, 0.42, "sh-line", "flr");
     B.rect(V, 0, 0, 2.5, 7, "sh-dark");
     B.line(V, -2.2, 0, 4.7, 0, "sh-thick");
     if (o.dims === false) return;
@@ -422,14 +461,14 @@ window.DRAW = (function () {
   }
   function doorDressing(B, V) {
     B.rect(V, -1.6, 0, 4.1, 9.2, "sh-none", "lime");
-    B.rect(V, -0.25, 0, 2.75, 7.25, "sh-line", "dgm"); B.rect(V, 0, 0, 2.5, 7, "sh-dark");
+    B.rect(V, -0.25, 0, 2.75, 7.25, "sh-line", "flr"); B.rect(V, 0, 0, 2.5, 7, "sh-dark");
     B.line(V, -2.2, 0, 4.7, 0, "sh-thick");
     B.dimH(V, -0.25, 0, 7.8, "{0.25}"); B.dimH(V, 0, 2.5, 3.5, "OPENING {2.5}"); B.key(V, -0.12, 4, "M3");
   }
   function doorJamb(B, V) { // horizontal section through the left jamb; room at the bottom (y<0), dressing at the top
     CUTW(B, V, -1.5, 0, 0, 0.75);
     const p = [[0, 0], [0, -0.0625 - 0.06]];
-    B.poly(V, [[-0.667, 0], [-0.667, -0.0625], [-0.45, -0.0625], [-0.45, -0.125], [-0.22, -0.125], [-0.22, -0.1875], [0.0625, -0.1875], [0.0625, 0.81], [-0.25, 0.81], [-0.25, 0.75], [0, 0.75], [0, 0]], "sh-line", true, "dgm");
+    B.poly(V, [[-0.667, 0], [-0.667, -0.0625], [-0.45, -0.0625], [-0.45, -0.125], [-0.22, -0.125], [-0.22, -0.1875], [0.0625, -0.1875], [0.0625, 0.81], [-0.25, 0.81], [-0.25, 0.75], [0, 0.75], [0, 0]], "sh-line", true, "flr");
     void p;
     B.text(V, -0.9, -0.5, "BEDROOM", "t-room", "start"); B.text(V, -0.9, 1.2, "DRESSING", "t-room", "start"); B.text(V, 0.5, 0.35, "OPENING →", "t-sm", "start");
     B.dimH(V, -0.667, 0, -0.42, "{0.667}"); B.dimV(V, -0.1875, 0, -0.95, "{0.1875}"); B.dimV(V, 0, 0.75, 0.45, "WALL {0.75}");
@@ -437,7 +476,7 @@ window.DRAW = (function () {
   function doorPlanCorner(B, V) { // where the bed-wall veneer curve meets the border
     CUTW(B, V, 13, -0.75, 16.75, 0); CUTW(B, V, 16, 1.667, 16.75, 3); CUTW(B, V, 16, 0, 16.75, 1.667);
     B.rect(V, 13, 0, 15, 0.1, "sh-line", "ven"); B.poly(V, [[15, 0], [16, 0], [16, 1], ...arc(15, 1, 1, 0, -H, 10).slice(1)], "sh-line", true, "ven");
-    B.poly(V, [[16, 1.0], [15.9375, 1.0], [15.9375, 1.217], [15.875, 1.217], [15.875, 1.447], [15.8125, 1.447], [15.8125, 1.667], [16, 1.667]], "sh-line", true, "dgm");
+    B.poly(V, [[16, 1.0], [15.9375, 1.0], [15.9375, 1.217], [15.875, 1.217], [15.875, 1.447], [15.8125, 1.447], [15.8125, 1.667], [16, 1.667]], "sh-line", true, "flr");
     B.text(V, 14.2, 1.6, "VENEER R1'0\"", "t-sm"); B.text(V, 14.6, 2.5, "MARBLE BORDER 8\"", "t-sm");
     B.dimV(V, 0, 1, 17.1, "{1}"); B.dimV(V, 1, 1.667, 17.1, "{0.667}"); B.dimV(V, 0, 1.667, 17.8, "{1.667} TO OPENING");
   }
@@ -671,14 +710,9 @@ window.DRAW = (function () {
     B.rect(V, X(4.792), 0.15, X(11.208), 1.15, "sh-line", "bou", 0.208); B.line(V, 0, 0, 7, 0, "sh-thick");
   }
   function nsFront(B, V) {
-    const u = (x) => x + 0.25;
-    B.rect(V, u(0.1), 0, u(1.4), 0.2, "sh-line", "cut");
-    B.poly(V, [[u(0), 0.2], [u(0), 1.72], [u(0.03), 1.75], [u(0.06), 1.72], [u(0.06), 0.2]], "sh-line", true, "ven");
-    B.poly(V, [[u(1.44), 0.2], [u(1.44), 1.72], [u(1.47), 1.75], [u(1.5), 1.72], [u(1.5), 0.2]], "sh-line", true, "ven");
-    B.rect(V, u(0.06), 0.2, u(1.44), 1.667, "sh-line", "ven");
-    B.rect(V, u(0.09), 0.27, u(1.41), 0.86, "sh-fill", null, 0.05); B.rect(V, u(0.09), 0.95, u(1.41), 1.55, "sh-fill", null, 0.05);
-    B.line(V, 0, 0, 2, 0, "sh-thick");
+    nightstand(B, V, 0.25); B.line(V, 0, 0, 2, 0, "sh-thick");
   }
+
 
   // ───────── sheets ─────────
   const W = 1400, Hh = 990;
@@ -697,7 +731,7 @@ window.DRAW = (function () {
         B.title(40, 44, "THE FOUR WALLS, FROM INSIDE", lab ? "the same views stand up in the 3D room" : "rendered from the drawings · true to scale");
         const frame = (V, L) => { CUTW(B, V, -0.35, 0, 0, 10.5); CUTW(B, V, L, 0, L + 0.35, 10.5); CUTW(B, V, -0.35, 10.5, L + 0.35, 10.8); B.line(V, -0.35, 0, L + 0.35, 0, "sh-thick"); };
         let V = B.view("Bed wall", 80, 420, k); B.text(V, 0, 11.6, "A · BED WALL (CONFIRMED)", "t-room", "start"); wallBed(B, V, {}); frame(V, 16); B.dimH(V, 0, 16, -0.6);
-        V = B.view("TV wall", 614, 420, k); B.text(V, 0, 11.6, "B · TV WALL", "t-room", "start"); wallTV(B, V, { labels: lab, niche: "A" }); frame(V, 15.75); B.dimH(V, 0, 15.75, -0.6);
+        V = B.view("TV wall", 614, 420, k); B.text(V, 0, 11.6, "B · TV WALL", "t-room", "start"); wallTV(B, V, { labels: lab }); frame(V, 15.75); B.dimH(V, 0, 15.75, -0.6);
         V = B.view("Desk wall", 80, 880, k); B.text(V, 0, 11.6, "C · DESK WALL", "t-room", "start"); wallDesk(B, V, { labels: lab }); frame(V, 13); B.dimH(V, 0, 13, -0.6);
         V = B.view("Dressing-side wall", 614, 880, k); B.text(V, 0, 11.6, "D · DRESSING-SIDE WALL", "t-room", "start"); wallDressing(B, V, { labels: lab }); frame(V, 13); B.dimH(V, 0, 13, -0.6);
         B.block(1150, 560, 220, { rows: ROW("RFP-02", "ROOM ELEVATIONS", "SHELL FIXED") });
@@ -710,25 +744,28 @@ window.DRAW = (function () {
         wallBed(B, V, { labels: true });
         B.dimH(V, 0, 16, 11.75); B.dimH(V, 0, 1, 11.15, "R{1}"); B.dimH(V, 1, 14.5, 11.15, "VENEER {13.5}"); B.dimH(V, 14.5, 16, 11.15);
         B.dimH(V, 0, 3.292, -0.55); B.dimH(V, 3.292, 4.792, -0.55); B.dimH(V, 4.792, 11.208, -0.55, "BED {6.417}"); B.dimH(V, 11.208, 12.708, -0.55); B.dimH(V, 12.708, 16, -0.55);
-        B.dimV(V, 0, 10.5, -1.0); B.dimV(V, 0, 8, 17.0); B.dimV(V, 0, 2.75, 13.1); B.dimV(V, 0, 1.667, 3.15); B.dimV(V, 1.667, 3.67, 11.15);
+        B.dimV(V, 0, 10.5, -1.0); B.dimV(V, 0, BVH, 17.0, "VENEER {7.667}"); B.dimV(V, 0, 3.25, 13.1); B.dimV(V, 0, 1.667, 3.15); B.dimV(V, 1.667, 3.67, 11.15);
         B.title(790, 44, "SECTION A-A", "through the bed centreline");
         V = B.view("Section A-A", 830, 470, 36); bedSection(B, V);
         B.title(50, 590, "PLAN", "bed zone · dressing side right");
         V = B.view("Bed zone plan", 90, 940, 36); bedPlan(B, V);
-        B.block(1150, 520, 220, { keys: [["V1", "Dark Diva Crown"], ["V2", "Same, 2\" flutes"], ["L1", "White limewash"], ["F1", "White bouclé"], ["P1", "Pendant (open)"], ["LED", "Edge LED 3000K"]],
-          notes: ["Confirmed design. Veneer to 8'0\"; curves round the dressing-side corner on R1'6\" and stops at the doorway.", "Nightstands drawn as envelopes; their design is open.", "Mattress 6'0\" × 6'6\"; padded roll only 2½\" on the sides and foot, so the bed is 6'5\" × 6'8½\" outside."], rows: ROW("RFP-10", "BED + BED WALL", "FINAL") });
+        B.title(760, 590, "NIGHTSTAND", "Viola slab underneath · veneer above");
+        V = B.view("Nightstand", 800, 890, 140); nightstand(B, V, 0); B.line(V, -0.2, 0, 1.7, 0, "sh-thick"); B.dimH(V, 0, 1.5, -0.35); B.dimV(V, 0, 1.667, 1.85); B.dimV(V, 0.2, 0.367, -0.25, "2\""); B.dimV(V, 0, 0.2, -0.25);
+        B.text(V, 0.75, 0.28, "CALACATTA VIOLA SLAB", "t-sm"); B.text(V, 0.75, 1.75, "DARK DIVA", "t-sm");
+        B.block(1150, 470, 220, { keys: [["V1", "Dark Diva Crown"], ["V2", "Same, 2\" flutes"], ["L1", "White limewash"], ["F1", "White bouclé"], ["P1", "Pendant (open)"], ["LED", "COB halo, 1\" gap behind the panel"], ["M1", "Calacatta Viola slab"]],
+          notes: ["Veneer panel to 7'8\", level with the top of the doorway's marble frame (10 Oct), floating 1\" off the wall with COB hidden behind its edges (halo); flutes run round the R1'0\" curve to the doorway. Headboard: plain flat bouclé, 3'3\" high (09 Oct).", "Nightstands (10 Oct): a 2\" Calacatta Viola slab underneath on a recessed black plinth; the drawer box and its top in Dark Diva, two handle-less drawers.", "Mattress 6'0\" × 6'6\"; padded roll only 2½\" on the sides and foot, so the bed is 6'5\" × 6'8½\" outside."], rows: ROW("RFP-10", "BED + BED WALL", "FINAL") });
       } },
     desk: { code: "RFP-20", title: "Desk · Revision 21", w: W, h: Hh,
       build(B) {
-        B.title(50, 44, "FRONT ELEVATION · SEATED SIDE", "owner's Revision 21 · under review");
+        B.title(50, 44, "FRONT ELEVATION · SEATED SIDE", "rounded pedestals · handle-less drawers");
         let V = B.view("Desk front", 20, 400, 52); deskFront(B, V);
-        B.title(660, 44, "REAR ELEVATION · WALL SIDE", "S-curved ribs and modesty face");
+        B.title(660, 44, "REAR ELEVATION · WALL SIDE", "removable back panel between the pedestals");
         V = B.view("Desk rear", 690, 400, 52); deskRear(B, V);
-        B.title(50, 560, "END ELEVATION", "door end");
+        B.title(50, 560, "END ELEVATION", "door end · leather side");
         V = B.view("Desk end", 90, 860, 52); deskEnd(B, V);
         B.title(380, 560, "PLAN", "desk wall at the bottom");
         V = B.view("Desk plan", 300, 900, 40); deskPlan(B, V);
-        B.block(1150, 520, 220, { notes: ["Redrawn from the owner's Joinery Revision 21 (PDF attached to the Desk). Not confirmed.", "Lower body projects 1\" beyond an inset solid top on every side.", "Desk front to bed side 2'4\": tight; to decide."], rows: ROW("RFP-20", "DESK REV 21", "DECIDING") });
+        B.block(1150, 520, 220, { notes: ["From the owner's Joinery Revision 21, updated to the decisions so far (10 Oct): rounded pedestals (R3\"), handle-less drawers, taupe leather on the outer sides, cable slot in the top, removable back panel.", "Lower body projects 1\" beyond an inset solid top on every side.", "Desk front to bed side 2'4\": tight; to decide."], rows: ROW("RFP-20", "DESK REV 21", "DECIDING") });
       } },
     dressing: { code: "RFP-30", title: "Dressing layout", w: W, h: Hh,
       build(B) {
@@ -807,7 +844,19 @@ window.DRAW = (function () {
       B.title(760, 520, "DETAIL · SHUTTER EDGE + BAR", "horizontal section · large scale");
       wardDetail(B, B.view("Shutter detail", 790, 760, 520));
       B.block(1150, 120, 220, { keys: [["V", "Dark Diva frames + bars"], ["L", "Linen-texture laminate"]], notes: ["After the owner's corridor reference.", "Panels: linen-texture laminate (wipeable) rather than real fabric.", "Shutters full height to 9'9\" over a 3\" recessed plinth, under a lit cove; ceiling 10'6\".", "Round bar handles 4'9\" long; corner cupboards 2 and 3 have a door on each open face."], rows: ROW("RFP-33", "WARDROBES", "SELECTED") });
-    } };  sheets.doorway = { code: "RFP-31", title: "Dressing doorway · marble border", w: W, h: Hh,
+    } };  sheets.deskcable = { code: "RFP-22", title: "Desk · leather sides & cable management", w: W, h: Hh,
+    build(B) {
+      B.title(50, 44, "PLAN · BACK OF THE TOP", "cable slot behind the monitor riser");
+      deskSlotPlan(B, B.view("Slot plan", 60 - 4.6 * 110, 330, 110));
+      B.title(600, 44, "SECTION · THROUGH THE SLOT", "magnetic lid · large scale");
+      deskSlotSection(B, B.view("Slot section", 640, 330, 380));
+      B.title(50, 520, "BACK PANEL · FROM THE WALL SIDE", "removable for cable work");
+      deskBackPanel(B, B.view("Back panel", 90, 900, 110));
+      B.title(640, 520, "END ELEVATION · DOOR END", "leather on the side, stopping at the front curve");
+      deskEnd(B, B.view("Desk end, leather", 700, 900, 110));
+      B.block(1150, 470, 220, { keys: [["L", "Taupe leather, outer sides"], ["M", "Magnets + 4 screws"]], notes: ["Top: 6\" × 2½\" cable slot, centred, 2\" from the back edge, under a flush magnetic Dark Diva lid with a finger notch.", "Back panel between the pedestals lifts off its magnets (4 screws hold it for good) for cable work; no hole in it: cables drop through the top slot (09 Oct).", "Taupe/greige leather on both outer sides only, from the foot to the top, stopping at the front edge where the curve begins; the curved corner and the handle-less drawer fronts stay Dark Diva (10 Oct)."], rows: ROW("RFP-22", "DESK DETAILS", "SELECTED") });
+    } };
+  sheets.doorway = { code: "RFP-31", title: "Dressing doorway · marble border", w: W, h: Hh,
     build(B) {
       B.title(50, 44, "ELEVATION · BEDROOM SIDE", "stepped dark gray marble border");
       doorRoom(B, B.view("Doorway, bedroom side", 140, 470, 46));
@@ -831,21 +880,19 @@ window.DRAW = (function () {
       nicheL(B, B.view("L niche plan", 640, 1010, 55));
       B.block(1150, 470, 220, { keys: [["M4", "Beige marble, polished"]], notes: ["Fitted on site; drawn clean from site photos, sizes approximate except the 3'6\" niche height and 5'0\" window sill.", "N3 is an L: one niche across the left and window walls, inside the shower.", "Wires are out in every niche for lighting."], rows: ROW("RFP-40", "BATHROOM NICHES", "FITTED · VERIFY") });
     } };
-  sheets.tv = { code: "RFP-50", title: "TV wall · curved band, niche A / B", w: W, h: Hh,
+  sheets.tv = { code: "RFP-50", title: "TV wall · Calacatta Viola, 7 ft floating console", w: W, h: Hh,
     build(B) {
-      B.title(50, 44, "SELECTED · A · CONTRAST STRIP + LIT NICHE", "chosen 03 Oct");
-      wallTV(B, B.view("TV wall option A", 60, 400, 27), { niche: "A", labels: true, dims: true });
-      B.title(560, 44, "CONSIDERED · B · TWIN LIT NICHES", "not taken");
-      wallTV(B, B.view("TV wall option B", 560, 400, 27), { niche: "B", labels: true, dims: true });
-      B.title(50, 520, "PLAN", "band curves forward into the shelf");
-      tvPlan(B, B.view("TV wall plan", 90, 1000, 30));
-      B.title(700, 520, "SECTION", "through the TV and console");
-      tvSection(B, B.view("TV section", 760, 920, 46));
-      B.block(1150, 470, 220, { keys: [["M1", "Viola marble band"], ["M3", "Contrast marble (niche)"], ["V1", "Dark Diva Crown console"]], notes: ["Band 4 ft tall, shelf to window, curving forward into the shelf on R1 ft; square at the window.", "55 in Sony Bravia 8 on the bed centreline, centre at 4 ft.", "Console 6 ft 6 in, floating, 1 ft tall, centred on the bed; flat front with three flat drawers, ends rounded back to the wall.", "Niche A selected: contrast strip with a lit niche; contrast marble to choose."], rows: ROW("RFP-50", "TV WALL", "BAND + NICHE A SELECTED") });
+      B.title(50, 44, "ELEVATION · TV WALL", "plain Calacatta Viola panel · floating curved Dark Diva console");
+      wallTV(B, B.view("TV wall", 60, 500, 38), { labels: true, dims: true });
+      B.title(50, 590, "PLAN", "panel curves forward into the shelf");
+      tvPlan(B, B.view("TV wall plan", 90, 1065, 30));
+      B.title(720, 590, "SECTION", "through the TV and console");
+      tvSection(B, B.view("TV section", 780, 950, 42));
+      B.block(1150, 470, 220, { keys: [["M1", "Calacatta Viola"], ["V1", "Dark Diva console"], ["F", "Fridge behind the middle front"]], notes: ["Panel 4 ft tall, shelf to window, 1\" off the wall with COB hidden behind its edges (halo); no strips, no niche (09 Oct).", "55 in Sony Bravia 8 on the bed centreline, centre at 4 ft.", "Console 7 ft × 1 ft 6 in, floating 5½ in off the floor, all Dark Diva veneer like before: ends curving back to the wall on R9 in, a thin top, handle-less push-to-open fronts (10 Oct).", "The wider middle front (2 ft 1 in) is a compact drawer fridge, veneered like the rest: no glass, no handle, lit inside.", "Full-height curtains at the window on a recessed ceiling track."], rows: ROW("RFP-50", "TV WALL", "SELECTED") });
     } };
   const index = [
     { id: "plan", item: "Suite", status: "final" }, { id: "walls", item: "Room", status: "open" }, { id: "bedwall", item: "Bed & bed wall", status: "final" },
-    { id: "desk", item: "Desk", status: "open" }, { id: "deskwall", item: "Study wall", status: "final" }, { id: "bathplan", item: "Bathroom layout", status: "final" }, { id: "vanity", item: "Vanity", status: "final" }, { id: "shower", item: "Shower", status: "final" }, { id: "dressing", item: "Dressing", status: "open" }, { id: "perfume", item: "Perfume column", status: "final" }, { id: "wardrobe", item: "Wardrobes", status: "final" },
+    { id: "desk", item: "Desk", status: "open" }, { id: "deskcable", item: "Desk details", status: "final" }, { id: "deskwall", item: "Study wall", status: "final" }, { id: "bathplan", item: "Bathroom layout", status: "final" }, { id: "vanity", item: "Vanity", status: "final" }, { id: "shower", item: "Shower", status: "final" }, { id: "dressing", item: "Dressing", status: "open" }, { id: "perfume", item: "Perfume column", status: "final" }, { id: "wardrobe", item: "Wardrobes", status: "final" },
     { id: "tv", item: "TV unit", status: "open" }, { id: "doorway", item: "Dressing doorway", status: "final" }, { id: "bath", item: "Bathroom niches", status: "final" },
   ];
   return { sheets, index, views: { plan, wallBed, wallTV, wallDesk, wallDressing, bathPlan, bathWallLeft, bathWallWindow, bathWallRight, bathWallDoor }, bath: { BW, BD, BH, GLASS, GL, GH }, thumbs: { wardrobe: [(B, V) => wardDress(B, { ...V, X: (v) => V.X(v + 0.6) }, {}), 6.8, 10.5], perfume: [(B, V) => perfumeFront(B, { ...V, X: (v) => V.X(v + 0.4) }, {}), 3.133, 10.6], ext: [(B, V) => extCupboards(B, { ...V, X: (v) => V.X(v - 15.25), Y: (h) => V.Y(h + 5.833) }, { labels: true }), 9, 5.083], desk: [(B, V) => { deskFront(B, { ...V, X: (v) => V.X(v - 3.1) }, false); B.line(V, 0, 0, 7.6, 0, "sh-thick"); }, 7.6, 4.4], dressing: [(B, V) => dressingPlan(B, { ...V, X: (v) => V.X(v - 14.2), Y: (h) => V.Y(h + 7.0) }), 11.4, 14.6], painting: [(B, V) => wallDressing(B, { ...V, X: (v) => V.X(v - 1.333) }, {}), 5.5, 8.2], vanity: [(B, V) => { vanFront(B, { ...V, X: (v) => V.X(v + 0.25) }, 0, {}); B.line(V, 0, 0, 3.5, 0, "sh-thick"); }, 3.5, 3.1], bathplan: [(B, V) => bathPlan(B, V, { bare: true }), 7.5, 6.667], shower: [(B, V) => bathWallLeft(B, { ...V, X: (v) => V.X(v - 3.4) }, {}), 3.267, 8], doorway: [(B) => doorRoom(B, B.view("t", 1.6 * 40, 9.2 * 40, 40), { dims: false }), 5.7, 9.2], bath: [(B, V) => bathLeft(B, V, { dims: false }), 6.667, 8], tvA: [(B, V) => wallTV(B, V, { niche: "A" }), 15.75, 10.5], bedwall: [(B, V) => wallBed(B, V, {}), 16, 10.5], deskwall: [(B, V) => wallDesk(B, V, {}), 13, 10.5], bed: [bedFront, 7, 3.0], ns: [nsFront, 2, 2.0] } };

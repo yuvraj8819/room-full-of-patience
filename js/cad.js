@@ -124,9 +124,9 @@ window.CAD = (function () {
       nz("vg1", "0.28 0.009", 3, 7, [0.12, 0.055, 0.03], 1.4, -0.45), nz("vg2", "0.12 0.004", 2, 11, [0.62, 0.38, 0.24], 0.9, -0.5),
       tile("ven", 90, 300, "#4a2b1e", ["vg1", "vg2"], `<path d="M8 300 Q45 110 82 300 M17 300 Q45 150 73 300 M26 300 Q45 190 64 300" fill="none" stroke="#1e0e07" stroke-width="1.2" opacity=".28"/>`),
       // stones
-      marble("marb", "#f1e8e2", [0.85, 0.74, 0.72], [0.45, 0.17, 0.23], [0.63, 0.37, 0.41], 4),
+      `<pattern id="${id}-marb" width="220" height="170" patternUnits="userSpaceOnUse"><image href="assets/refs/tex-calacatta-viola.jpg" width="220" height="170" preserveAspectRatio="none"/></pattern>`,
       marble("bge", "#e4d4bd", [0.8, 0.69, 0.55], [0.62, 0.48, 0.34], [0.72, 0.6, 0.46], 14),
-      marble("dgm", "#4b4440", [0.2, 0.18, 0.17], [0.93, 0.9, 0.87], [0.7, 0.66, 0.62], 24),
+      marble("dgm", "#2b2521", [0.17, 0.15, 0.13], [0.86, 0.84, 0.8], [0.4, 0.37, 0.34], 24),
       marble("flr", "#bdb2a6", [0.62, 0.56, 0.5], [0.52, 0.47, 0.43], [0.6, 0.55, 0.5], 34),
       // white bouclé: nubby loops; taupe fabric: a fine woven slub
       nz("bq1", 0.35, 2, 3, [0.7, 0.65, 0.58], -3.2, 0.8, "turbulence"), nz("bq2", 0.5, 2, 8, [1, 1, 1], 0.7, -0.3),
@@ -286,7 +286,7 @@ window.CAD = (function () {
 // Sheet styling: shared by the page and by exported SVG files.
 window.SHEET_CSS = `
 [data-mode="cad"]{--bg:#fff;--ink:#111;--thin:#3a3a3a;--dim:#111;--soft:#fff;--ven:#fff;--grain:#9a9a9a;--marb:#fff;--vein:#8a8a8a;--bou:#fff;--boud:#b8b8b8;--flr:#fff;--fvein:#cfcfcf;--led:#111;--key:#111;--keyt:#fff;--ward:#fff;--wardl:#111;--metal:#fff;--dark:#fff;--dot:#9a9a9a;--warn:#111;--bge:#fff;--bgv:#b5b5b5;--dgm:#fff;--dgv:#8a8a8a;--tau:#fff;--tauw:#d0d0d0}
-[data-mode="colour"]{--bg:#fffdf9;--ink:#1d1a17;--thin:#5e5852;--dim:#9a4a2a;--soft:#f3eee7;--ven:#6b3a24;--grain:#8c5536;--marb:#f6f0ea;--vein:#a46a5f;--bou:#f4f0e9;--boud:#ddd5ca;--flr:#cfc7bd;--fvein:#ece6de;--led:#d0891f;--key:#6b3a24;--keyt:#fff;--ward:#efe3d6;--wardl:#8c5536;--metal:#c9a46a;--dark:#2a2724;--dot:#bdb6ad;--warn:#b0352a;--bge:#e6d8c3;--bgv:#c4ad8d;--dgm:#5e5650;--dgv:#d8d2cc;--tau:#a99886;--tauw:#9a8a78}
+[data-mode="colour"]{--bg:#fffdf9;--ink:#1d1a17;--thin:#5e5852;--dim:#9a4a2a;--soft:#f3eee7;--ven:#6b3a24;--grain:#8c5536;--marb:#f6f0ea;--vein:#5a2230;--bou:#f4f0e9;--boud:#ddd5ca;--flr:#cfc7bd;--fvein:#ece6de;--led:#d0891f;--key:#6b3a24;--keyt:#fff;--ward:#efe3d6;--wardl:#8c5536;--metal:#c9a46a;--dark:#2a2724;--dot:#bdb6ad;--warn:#b0352a;--bge:#e6d8c3;--bgv:#c4ad8d;--dgm:#3a332e;--dgv:#d8d2cc;--tau:#a99886;--tauw:#9a8a78}
 [data-mode="dark"]{--bg:#0d0c0b;--ink:#ece6de;--thin:#97908a;--dim:#e0714f;--soft:#1b1917;--ven:#3a2318;--grain:#5c3a29;--marb:#2a2321;--vein:#7a4e48;--bou:#262422;--boud:#3b3835;--flr:#1d1b19;--fvein:#2c2926;--led:#e7a947;--key:#c98f63;--keyt:#0d0c0b;--ward:#24201c;--wardl:#c98f63;--metal:#a8854f;--dark:#000;--dot:#47423d;--warn:#e0714f;--bge:#3a3229;--bgv:#5c4e3d;--dgm:#2a2725;--dgv:#6c6560;--tau:#3a332c;--tauw:#463e36}
 [data-mode="blueprint"]{--bg:#123a6b;--ink:#eaf2ff;--thin:#a9c2e6;--dim:#ffd27a;--soft:#174580;--ven:#1b4c88;--grain:#5d88c4;--marb:#1a4a86;--vein:#8fb0dd;--bou:#174580;--boud:#3c6aa8;--flr:#16427a;--fvein:#2a5b98;--led:#ffd27a;--key:#ffd27a;--keyt:#123a6b;--ward:#1a4a86;--wardl:#ffb3d9;--metal:#ffd27a;--dark:#0b2a52;--dot:#6d97d0;--warn:#ffd27a;--bge:#1a4a86;--bgv:#5d88c4;--dgm:#0f3666;--dgv:#8fb0dd;--tau:#1a4a86;--tauw:#2d5d99}
 [data-mode="render"]{--bg:#f6f1ea;--ink:#2a221d;--thin:#6b5f55;--dim:#8a4a2a;--soft:#e6dccf;--ven:#4a2b1e;--grain:#2a160d;--marb:#f1e8e2;--vein:#8a4a55;--bou:#f4efe7;--boud:#d8cfc3;--flr:#bdb2a6;--fvein:#a3988c;--led:#fff1d6;--key:#4a2b1e;--keyt:#fff;--ward:#e9dfd2;--wardl:#6b4a35;--metal:#b8925a;--dark:#101012;--dot:#cfc6bb;--warn:#b0352a;--bge:#e4d4bd;--bgv:#b09070;--dgm:#4d4642;--dgv:#e8e2dc;--tau:#9a8875;--tauw:#7d6c5c}
